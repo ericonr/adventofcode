@@ -1,8 +1,5 @@
 #lang racket
 
-; bingo table size
-(define size 5)
-
 ; return element instead of list for cdr
 (define (cdrm l)
   (car (cdr l)))
@@ -28,16 +25,40 @@
 (define slist (for/list ([t (in-lines)]) (make-line t)))
 (define list1 (f-hori-vert slist))
 
+(define (iterate-y p1 p2)
+  (for/list ([i (my-range (cdrm p1) (cdrm p2))]) (cons (car p1) i)))
+
+(define (iterate-x p1 p2)
+  (for/list ([i (my-range (car p1) (car p2))]) (cons i (cdrm p1))))
+
+(define (iterate-xy p1 p2)
+  (for/list ([i (my-range (car p1) (car p2))] [j (my-range (cdrm p1) (cdrm p2))]) (cons i j)))
+
 (define (process-v v)
   (define p1 (car v))
   (define p2 (cdrm v))
   (if (equal-x p1 p2)
-	 (for/list ([i (my-range (cdrm p1) (cdrm p2))]) (cons (car p1) i))
-	 (for/list ([i (my-range (car p1) (car p2))]) (cons i (cdrm p1)))))
+	 (iterate-y p1 p2)
+	 (iterate-x p1 p2)))
+
+(define (process-v2 v)
+  (define p1 (car v))
+  (define p2 (cdrm v))
+  (if (equal-x p1 p2)
+	 (iterate-y p1 p2)
+	 (if (equal-y p1 p2)
+		(iterate-x p1 p2)
+		(iterate-xy p1 p2))))
 
 (define h1 (make-hash))
+(define h2 (make-hash))
 (for* ([v (in-list list1)] [p (in-list (process-v v))]) (hash-update! h1 p add1 0))
-(display "done creating count1\n")
+(for* ([v (in-list slist)] [p (in-list (process-v2 v))]) (hash-update! h2 p add1 0))
+(display "done creating hs\n")
+
+(define (overlap v) (if (>= v 2) 1 0))
 
 (display "res1: ")
-(for/sum ([v (in-hash-values h1)] #:when (>= v 2)) 1)
+(for/sum ([v (in-hash-values h1)]) (overlap v))
+(display "res2: ")
+(for/sum ([v (in-hash-values h2)]) (overlap v))
