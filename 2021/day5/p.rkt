@@ -35,12 +35,9 @@
 	 (for/list ([i (my-range (cdrm p1) (cdrm p2))]) (cons (car p1) i))
 	 (for/list ([i (my-range (car p1) (car p2))]) (cons i (cdrm p1)))))
 
-(define count1 (for*/list ([v (in-list list1)] [p (in-list (process-v v))]) p))
+(define h1 (make-hash))
+(for* ([v (in-list list1)] [p (in-list (process-v v))]) (hash-update! h1 p add1 0))
 (display "done creating count1\n")
 
-(define already-count1 null)
-(for ([p (in-list count1)] #:unless (member p already-count1))
-	  (when (member p (cdr (member p count1)))
-		 (set! already-count1 (append already-count1 (list p)))))
-
-(display "res1: ") (display (length already-count1))
+(display "res1: ")
+(for/sum ([v (in-hash-values h1)] #:when (>= v 2)) 1)
