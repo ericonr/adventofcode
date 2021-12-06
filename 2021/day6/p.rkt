@@ -15,10 +15,10 @@
 
 ; input desired days HERE
 (for ([i (in-range 256)])
-	  (define holder (vector-ref sv 0))
-	  (for ([j (in-range 1 9)])
-			 (vector-set! sv (sub1 j) (vector-ref sv j)))
-	  (vector-set! sv 6 (+ (vector-ref sv 6) holder))
-	  (vector-set! sv 8 holder))
+  (define holder (vector-ref sv 0))
+  (for ([j (in-range 1 9)])
+    (vector-set! sv (sub1 j) (vector-ref sv j)))
+  (vector-set! sv 6 (+ (vector-ref sv 6) holder))
+  (vector-set! sv 8 holder))
 
 (total-fish sv)

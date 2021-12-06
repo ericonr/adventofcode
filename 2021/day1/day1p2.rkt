@@ -2,8 +2,8 @@
 
 (define l null)
 (for ([t (in-lines)])
-	  (define new (string->number t))
-	  (set! l (cons new l)))
+  (define new (string->number t))
+  (set! l (cons new l)))
 
 (define v (list->vector (reverse l)))
 
@@ -16,8 +16,8 @@
 (define count 0)
 (define len (vector-length v))
 (for/list ([i (in-range len)])
-			 (if (and (<= (+ i 4) len) (< (vsum v i) (vsum v (+ i 1))))
-				(set! count (+ count 1))
-				#f))
+  (if (and (<= (+ i 4) len) (< (vsum v i) (vsum v (+ i 1))))
+      (set! count (+ count 1))
+      #f))
 
 (display count)
