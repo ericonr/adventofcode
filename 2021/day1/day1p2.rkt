@@ -1,4 +1,4 @@
-#lang racket
+#lang racket/base
 
 (define l null)
 (for ([t (in-lines)])
