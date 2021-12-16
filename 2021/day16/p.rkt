@@ -1,28 +1,21 @@
 #lang racket/base
-(require racket/list)
 (require racket/match)
 
-(define (char16->number c)
-  (string->number (string c) 16))
-
-(define (make-line t)
-  (define numbers (map char16->number (string->list t)))
-  (flatten (for/list ([n numbers])
-             (define l (string->list (number->string n 2)))
-             (if (= (length l) 4)
-                 l
-                 (list (make-list (- 4 (length l)) #\0) l)))))
-
-(define slist (make-line (read-line)))
+(define ss (read-line))
+(define slen (* (string-length ss) 4))
+(define sn (string->number ss 16))
 
 ; part 1
 (define version-sum 0)
 
 ; l=list p=initial_position n=number_of_bits
 (define (get-value-bits l p n)
-  (string->number (apply string (for/list ([index (in-range p (+ p n))]) (list-ref l index))) 2))
+  (let* ([base (- slen p)] [base-start (- base n)])
+    (bitwise-bit-field l base-start base)))
+(define (is-bit-set? l p)
+  (bitwise-bit-set? l (- slen p 1)))
 
-; l=list p=initial_position
+; l=number p=initial_position
 ; returns (values new_position return_value)
 (define (advance-in-list l p)
   (define (advance-p! n)
@@ -39,7 +32,7 @@
   (define v (match type-id
               ; literal value
               [4
-               (define sl (reverse (for/list ([i (in-naturals)] #:final (equal? (list-ref l p) #\0))
+               (define sl (reverse (for/list ([i (in-naturals)] #:final (not (is-bit-set? l p)))
                                      (define r (begin0 (get-value-bits l p 5) (advance-p! 5)))
                                      (if (>= r 16)
                                          (- r 16)
@@ -51,9 +44,9 @@
               [operator
                (define is-bits #t)
                (define out-len
-                 (let ([c (list-ref l p)])
+                 (let ([c (is-bit-set? l p)])
                    (advance-p! 1)
-                   (if (equal? c #\0)
+                   (if (not c)
                        ; total length in bits
                        (let ([len (get-value-bits l p 15)])
                          (advance-p! 15)
@@ -94,6 +87,6 @@
   (values p v))
 
 ; returns result for part 2 and goes through input to update version sum
-(advance-in-list slist 0)
+(advance-in-list sn 0)
 ; part 1
 version-sum
