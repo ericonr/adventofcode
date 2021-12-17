@@ -23,20 +23,19 @@
   (cons (+ x (* h ex)) (+ y (* v ey))))
 
 (define (fix-value x y)
-  ;(display "\n pos")
-  ;(display (cons x y))
   (let*-values ([(ex x) (quotient/remainder x h)] [(ey y) (quotient/remainder y v)] [(val) (+ (access x y) ex ey)])
-    ;(display (list x y ex ey val))
     (if (> val 9)
         (remainder val 9)
         val)))
 
 (define g (weighted-graph/directed null))
-(for* ([x (in-range h)] [y (in-range v)] [ex (in-range extra)] [ey (in-range extra)])
-  (add-vertex! g (new-pos x y ex ey)))
 (match-let ([(cons h v) (new-pos h v (sub1 extra) (sub1 extra))])
   (for* ([x (in-range h)] [y (in-range v)])
     (let ([p (cons x y)])
+      (when (> x 0)
+        (add-directed-edge! g p (cons (sub1 x) y) (fix-value (sub1 x) y)))
+      (when (> y 0)
+        (add-directed-edge! g p (cons x (sub1 y)) (fix-value x (sub1 y))))
       (when (< x (sub1 h))
         (add-directed-edge! g p (cons (add1 x) y) (fix-value (add1 x) y)))
       (when (< y (sub1 v))
@@ -46,9 +45,10 @@
       (display pos)
       (display "\n")
       (unless (equal? pos (cons 0 0)) (explore (hash-ref ed pos))))
-    (explore pos)
+    ;(explore pos)
     (hash-ref vs pos)))
 
+; print expanded grid
 (when #f
 (match-let ([(cons h v) (new-pos h v (sub1 extra) (sub1 extra))])
   (for* ([y (in-range v)] [x (in-range h)])
