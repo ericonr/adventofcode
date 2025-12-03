@@ -1,8 +1,13 @@
 defmodule AoC do
-  def perform_moves(zcount, position, [head | tail]) do
-    IO.puts("zeroes #{zcount} position #{position} move #{head}")
+  def position_is_zero(position) do
+    case position do
+      0 -> 1
+      _ -> 0
+    end
+  end
 
-    new_position_sign = rem(position + head, 100)
+  def move_1b1(zcount_method, position, move, sign) when move > 0 do
+    new_position_sign = rem(position + sign, 100)
 
     new_position =
       cond do
@@ -10,18 +15,34 @@ defmodule AoC do
         new_position_sign >= 0 -> new_position_sign
       end
 
-    change_zcount =
-      case new_position do
-        0 -> 1
-        _ -> 0
-      end
-
-    perform_moves(zcount + change_zcount, new_position, tail)
+    move_1b1(zcount_method + position_is_zero(new_position), new_position, move - 1, sign)
   end
 
-  def perform_moves(zcount, position, []) do
-    IO.puts("zeroes #{zcount} position #{position} nomoves")
-    {zcount, position}
+  def move_1b1(zcount_method, position, 0, _sign) do
+    {zcount_method, position}
+  end
+
+  def perform_moves(zcount, zcount_method, position, [head | tail]) do
+    IO.puts("zeroes #{zcount} position #{position} move #{head}")
+
+    {new_zcount_method, new_position} =
+      move_1b1(
+        zcount_method,
+        position,
+        abs(head),
+        if head >= 0 do
+          1
+        else
+          -1
+        end
+      )
+
+    perform_moves(zcount + position_is_zero(new_position), new_zcount_method, new_position, tail)
+  end
+
+  def perform_moves(zcount, zcount_method, position, []) do
+    IO.puts("zeroes #{zcount} zeroes_method #{zcount_method} position #{position} nomoves")
+    {zcount, zcount_method, position}
   end
 end
 
@@ -43,5 +64,6 @@ moves =
 
 start = 50
 
-{zcount, _} = AoC.perform_moves(0, start, moves)
+{zcount, zcount_method, _} = AoC.perform_moves(0, 0, start, moves)
 IO.puts(zcount)
+IO.puts(zcount_method)
