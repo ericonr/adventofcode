@@ -17,10 +17,23 @@ defmodule AoC do
     end
   end
 
-  def max_joltage(line) do
-    {first_pos, first_val} = max_char(line, 1, 0, {0, 0})
-    {_, second_val} = max_char(line, 0, first_pos + 1, {0, 0})
-    10 * first_val + second_val
+  def max_joltage(line, sum, starting_pos, n_batteries) when n_batteries > 0 do
+    {new_pos, new_value} = max_char(line, n_batteries - 1, starting_pos, {0, 0})
+
+    max_joltage(
+      line,
+      sum + new_value * 10 ** (n_batteries - 1),
+      new_pos + 1,
+      n_batteries - 1
+    )
+  end
+
+  def max_joltage(_line, sum, _starting_pos, 0) do
+    sum
+  end
+
+  def total_joltage(lines, n_batteries) do
+    Enum.reduce(lines, 0, fn l, s -> s + AoC.max_joltage(l, 0, 0, n_batteries) end)
   end
 end
 
@@ -28,5 +41,5 @@ end
 body = String.trim(File.read!(file_name))
 lines = String.split(body)
 
-total_max_joltage = Enum.reduce(lines, 0, fn l, s -> s + AoC.max_joltage(l) end)
-IO.puts(total_max_joltage)
+IO.puts(AoC.total_joltage(lines, 2))
+IO.puts(AoC.total_joltage(lines, 12))
